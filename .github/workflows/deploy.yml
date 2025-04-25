@@ -68,3 +68,18 @@ jobs:
           else
             sfdx force:mdapi:deploy -c -d mdapi -u "$SFDC_USER" -w -1 -l RunSpecifiedTests -r ${{ vars.SFDC_TEST_CLASSES }}
           fi
+
+      # Send Slack Notifications
+      - name: 📢 Notify Slack on Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"✅ *Deployment to '${{ env.DEPLOY_TARGET }}'* succeeded! \nBranch: '${{ github.ref_name }}' \nCommit: '${{ github.sha }}'"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: ❌ Notify Slack on Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"🚨 *Deployment to '${{ env.DEPLOY_TARGET }}'* failed! \nBranch: '${{ github.ref_name }}' \nCommit: '${{ github.sha }}'"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
