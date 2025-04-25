@@ -30,16 +30,19 @@ jobs:
             echo "SFDC_USER=${{ vars.SFDC_PROD_USER }}" >> $GITHUB_ENV
             echo "SFDC_URL=${{ vars.SFDC_PROD_URL }}" >> $GITHUB_ENV
             echo "CONSUMER_KEY=${{ secrets.PROD_CONSUMER_KEY }}" >> $GITHUB_ENV
+            echo "DEPLOY_TARGET=PROD" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF##*/}" == "release/QA" ]]; then
             echo "Deploying to QA..."
             echo "SFDC_USER=${{ vars.SFDC_QA_USER }}" >> $GITHUB_ENV
             echo "SFDC_URL=${{ vars.SFDC_QA_URL }}" >> $GITHUB_ENV
             echo "CONSUMER_KEY=${{ secrets.QA_CONSUMER_KEY }}" >> $GITHUB_ENV
+            echo "DEPLOY_TARGET=QA" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF##*/}" == "release/UAT" ]]; then
             echo "Deploying to UAT..."
             echo "SFDC_USER=${{ vars.SFDC_UAT_USER }}" >> $GITHUB_ENV
             echo "SFDC_URL=${{ vars.SFDC_UAT_URL }}" >> $GITHUB_ENV
             echo "CONSUMER_KEY=${{ secrets.UAT_CONSUMER_KEY }}" >> $GITHUB_ENV
+            echo "DEPLOY_TARGET=UAT" >> $GITHUB_ENV
           else
             echo "❌ Unsupported branch: $GITHUB_REF"
             exit 1
