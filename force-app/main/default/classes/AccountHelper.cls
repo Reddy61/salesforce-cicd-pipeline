@@ -1,5 +1,5 @@
 /**
- * @description Helper class for updating Account records.
+ * @description Helper class for updating Account record.
  */
 public with sharing class AccountHelper {
     /**
