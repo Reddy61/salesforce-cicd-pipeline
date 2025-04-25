@@ -1,0 +1,70 @@
+name: SFDX CICD Pipeline
+
+# Trigger pipeline on manual dispatch or push to specific branches
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, release/QA, release/UAT ]
+
+jobs:
+  deploy:
+    # Run on Ubuntu and use a custom Docker container
+    runs-on: ubuntu-latest
+    container:
+      image: jayadeepkumar61/sfdx-cicd-latest:latest
+      credentials:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      options: --user root
+
+    steps:
+      # Checkout the source code
+      - uses: actions/checkout@v3
+
+      # Set Salesforce credentials dynamically based on branch
+      - name: 🎯 Set Target Org Credentials Based on Branch
+        run: |
+          echo "📦 Determining target org based on branch..."
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            echo "Deploying to PROD..."
+            echo "SFDC_USER=${{ vars.SFDC_ORG_USER }}" >> $GITHUB_ENV
+            echo "SFDC_URL=${{ vars.SFDC_ORG_URL }}" >> $GITHUB_ENV
+            echo "CONSUMER_KEY=${{ secrets.CONSUMER_KEY }}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF##*/}" == "release/QA" ]]; then
+            echo "Deploying to QA..."
+            echo "SFDC_USER=${{ vars.SFDC_QA_USER }}" >> $GITHUB_ENV
+            echo "SFDC_URL=${{ vars.SFDC_QA_URL }}" >> $GITHUB_ENV
+            echo "CONSUMER_KEY=${{ secrets.QA_CONSUMER_KEY }}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF##*/}" == "release/UAT" ]]; then
+            echo "Deploying to UAT..."
+            echo "SFDC_USER=${{ vars.SFDC_UAT_USER }}" >> $GITHUB_ENV
+            echo "SFDC_URL=${{ vars.SFDC_UAT_URL }}" >> $GITHUB_ENV
+            echo "CONSUMER_KEY=${{ secrets.UAT_CONSUMER_KEY }}" >> $GITHUB_ENV
+          else
+            echo "❌ Unsupported branch: $GITHUB_REF"
+            exit 1
+          fi
+
+      # Authenticate to Salesforce using the JWT-based flow
+      - name: 🔐 Authenticate with Salesforce
+        run: |
+          echo "🔐 Decrypting private key and authenticating with Salesforce..."
+          openssl enc -d -aes-256-cbc -in assets/server.key.enc -out assets/server.key -K ${{ secrets.AESKEY }} -iv ${{ secrets.IVKEY }}
+          sfdx auth jwt grant \
+            --client-id "$CONSUMER_KEY" \
+            --username "$SFDC_USER" \
+            --jwt-key-file assets/server.key \
+            --instance-url "$SFDC_URL" \
+            --alias sfdx-ci \
+            --set-default
+          echo "✅ Authenticated with Salesforce."
+
+      - name: 🚀 Validate & Deploy
+        run: |
+          echo "🔍 Validating deployment..."
+          sfdx force:source:convert -d mdapi
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            sfdx force:mdapi:deploy -d mdapi -w -1 -u "$SFDC_USER"
+          else
+            sfdx force:mdapi:deploy -c -d mdapi -u "$SFDC_USER" -w -1 -l RunSpecifiedTests -r ${{ vars.SFDC_TEST_CLASSES }}
+          fi

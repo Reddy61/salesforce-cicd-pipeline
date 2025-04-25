@@ -1,0 +1,44 @@
+name: Pre-Merge Code Quality Checks
+
+on:
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  lint-and-analyze:
+    name: 📊 Prettier & PMD Static Analysis
+    runs-on: ubuntu-latest
+    container:
+      image: jayadeepkumar61/sfdx-cicd-latest:latest
+      credentials:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      options: --user root
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Lint using Prettier
+      - name: 🔍 Run Prettier Lint
+        id: prettier
+        continue-on-error: true
+        run: |
+          prettier "force-app/**/*.{cls,html,js,json}" --plugin=prettier-plugin-apex --check
+
+      # Run static code analysis using Programming Mistake Detector
+      - name: 🧠 Run PMD Static Analysis
+        id: pmd
+        continue-on-error: true
+        run: |
+          pmd pmd -d force-app -R rulesets/apex/quickstart.xml -f text -cache .pmd/cache
+
+      - name: ❌ Fail if Prettier or PMD failed
+        run: |
+          echo "🧪 Checking previous step results..."
+          if [ "${{ steps.prettier.outcome }}" == "failure" ] || [ "${{ steps.pmd.outcome }}" == "failure" ]; then
+            echo "❌ One or more checks failed."
+            exit 1
+          else
+            echo "✅ All checks passed!"
+          fi

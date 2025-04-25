@@ -1,0 +1,17 @@
+{
+    "name": "grants-accelerator",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "format": "prettier \"force-app/**/*.{js,html,json,cls}\" --plugin=prettier-plugin-apex --write",
+        "check-format": "prettier \"force-app/**/*.{js,html,json,cls}\" --plugin=prettier-plugin-apex --check"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "Repo that contains entire Sikich Grants Accelerator product with Application and Grants Management without Participant Data",
+    "devDependencies": {
+        "prettier": "^3.5.3",
+        "prettier-plugin-apex": "^2.2.6"
+    }
+}
