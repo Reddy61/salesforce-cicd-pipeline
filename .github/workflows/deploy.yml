@@ -27,9 +27,9 @@ jobs:
           echo "📦 Determining target org based on branch..."
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "Deploying to PROD..."
-            echo "SFDC_USER=${{ vars.SFDC_ORG_USER }}" >> $GITHUB_ENV
-            echo "SFDC_URL=${{ vars.SFDC_ORG_URL }}" >> $GITHUB_ENV
-            echo "CONSUMER_KEY=${{ secrets.CONSUMER_KEY }}" >> $GITHUB_ENV
+            echo "SFDC_USER=${{ vars.SFDC_PROD_USER }}" >> $GITHUB_ENV
+            echo "SFDC_URL=${{ vars.SFDC_PROD_URL }}" >> $GITHUB_ENV
+            echo "CONSUMER_KEY=${{ secrets.PROD_CONSUMER_KEY }}" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF##*/}" == "release/QA" ]]; then
             echo "Deploying to QA..."
             echo "SFDC_USER=${{ vars.SFDC_QA_USER }}" >> $GITHUB_ENV
