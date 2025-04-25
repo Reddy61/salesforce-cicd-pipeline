@@ -68,7 +68,7 @@ prettier "force-app/**/*.{cls,html,js,json}" --write
   - Missing CRUD/FLS checks.
   - Test classes without `System.runAs()`.
 
-[📖 Full Apex Rules Documentation](https://docs.pmd-code.org/latest/pmd_rules_apex.html)
+📖 [Full Apex Rules Documentation](https://docs.pmd-code.org/latest/pmd_rules_apex.html)
 
 ---
 
