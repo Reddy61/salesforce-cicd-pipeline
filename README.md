@@ -1,80 +1,135 @@
-# ✨ Prettier and PMD Rule Guide for Salesforce CI/CD
 
-This document outlines the formatting and static analysis standards enforced in the CI/CD pipeline using **Prettier** and **PMD**.
+# 🚀 Salesforce CI/CD Pipeline with GitHub Actions
+
+Welcome! This project demonstrates a fully automated **Salesforce CI/CD pipeline** using **GitHub Actions**, **Prettier**, **PMD**, and a custom **Dockerized build environment**. It is designed to help Salesforce teams streamline deployments, enforce code quality, and manage multi-environment releases efficiently.
 
 ---
 
-### ⚙️ Prettier Configuration
+## 🔧 Key Features
 
-Defined in `.prettierrc`:
+- **Branch-based Deployments**: 
+  - `main` → Validates against **Production** org.
+  - `release/UAT` → Validates against **UAT** sandbox.
+  - `release/QA` → Deploys directly to **QA** sandbox.
 
-```json
-{
-  "printWidth": 100,
-  "tabWidth": 4,
-  "useTabs": false,
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "es5",
-  "bracketSpacing": true,
-  "arrowParens": "always",
-  "plugins": ["prettier-plugin-apex"],
-  "overrides": [
-    {
-      "files": "*.cls",
-      "options": {
-        "parser": "apex"
-      }
-    }
-  ]
-}
+- **Automated Code Quality Gates**:
+  - **Prettier** for consistent Apex, LWC, and JavaScript formatting.
+  - **PMD** for static code analysis with enforced Apex best practices.
+
+- **Slack Notifications**:
+  - Real-time deployment success/failure alerts to a Slack channel.
+
+- **Dynamic Environment Detection**:
+  - Automatically detects which Salesforce org to deploy/validate based on the branch.
+
+---
+
+## 📂 Project Structure
+
+```
+.
+├── .github/workflows/
+│   ├── pr-checks.yml      # Pre-merge quality checks (Prettier + PMD)
+│   └── deploy.yml         # Deployment pipeline for QA, UAT, and Prod
+├── force-app/             # Salesforce source metadata
+├── .prettierrc            # Prettier configuration for Apex & JS
+├── .prettierignore        # Files/folders ignored by Prettier
+├── .forceignore           # Files/folders ignored during Salesforce deployments
+├── sfdx-project.json      # Salesforce DX project config
+├── Dockerfile             # Custom Docker image for consistent CI builds
+└── assets/server.key.enc  # Encrypted private key for Salesforce JWT auth
 ```
 
-### 💡 Best Practices to Avoid Prettier Errors
+---
 
-- Use **single quotes** instead of double quotes for strings.
-- Always add **semicolons**.
-- Maintain **4 spaces per indentation level**.
-- Keep **line lengths under 100 characters**.
-- **Avoid manually formatting code**; run `prettier --write` before committing.
+## 🧪 Automated Testing & Code Quality
+
+### ✨ **Prettier Formatting**
+
+- **Files Checked**: `.cls`, `.js`, `.html`, `.json`
+- **Rules**: 
+  - 4 spaces for indentation
+  - Single quotes for strings
+  - Max line width: 100 characters
+  - Always include semicolons
+
+**Run Locally**:
+```bash
+prettier "force-app/**/*.{cls,html,js,json}" --write
+```
 
 ---
 
-## 🧠 PMD Static Analysis Guide
+### 🧠 **PMD Static Analysis**
 
-PMD helps detect code quality issues in Apex. Check out this link for the Apex best practices - [link](https://docs.pmd-code.org/latest/pmd_rules_apex.html)
+- **Ruleset**: `rulesets/apex/quickstart.xml`
+- **Common Violations**:
+  - Missing ApexDoc comments.
+  - Missing CRUD/FLS checks.
+  - Test classes without `System.runAs()`.
 
-### ✅ PMD Ruleset Used
-
-- `rulesets/apex/quickstart.xml`
-
-### 🚫 Common Rule Violations
-
-| Rule                               | Description                                  | Example                                                          |
-|------------------------------------|----------------------------------------------|------------------------------------------------------------------|
-| `ApexDoc`                          | Missing or incomplete documentation comment. | Add `/** ... */` before class/method.                            |
-| `ApexCRUDViolation`                | Missing CRUD checks before DML or SOQL.      | Add `Schema.sObjectType.Account.isAccessible()` before querying. |
-| `ApexUnitTestClassShouldHaveRunAs` | Tests must include `System.runAs()`.         | Wrap operations in `System.runAs(u)` block.                      |
-
-### 💡 Best Practices to Avoid PMD Errors
-
-- Add Javadoc-style comments to **every Apex class and method**.
-- Before DML/SOQL, check permissions using **CRUD and FLS**.
-- In test classes, **always include** at least one `System.runAs()` block.
-- **Avoid deeply nested logic** or large methods; break into smaller units.
+[📖 Full Apex Rules Documentation](https://docs.pmd-code.org/latest/pmd_rules_apex.html)
 
 ---
 
-## ✅ Summary: Tips for Developers
+## 🛠 CI/CD Pipeline Overview
 
-| Area       | Tip                                                                                        |
-|------------|--------------------------------------------------------------------------------------------|
-| Formatting | Use Prettier locally before commit: `prettier "force-app/**/*.{cls,html,js,json}" --write` |
-| CRUD/FLS   | Always check for access before accessing fields or records                                 |
-| ApexDocs   | Comment every public method and class                                                      |
-| Tests      | Always wrap at least one operation in `System.runAs()`                                     |
-| Tooling    | Set up your IDE (like VSCode) to auto-format on save using Prettier                        |
+### 1. **Pre-Merge Checks** (`pr-checks.yml`):
+- Runs on every **Pull Request**.
+- Enforces Prettier and PMD checks.
+- Blocks merge if violations are found.
+
+### 2. **Deployments** (`deploy.yml`):
+- Runs on pushes to `main`, `release/QA`, or `release/UAT`.
+- Deploys or validates metadata based on target org.
+- Sends deployment results to Slack.
 
 ---
 
-Following this guide ensures smooth PR merges and consistent code quality in every environment 🚀.
+## 🔐 Security & Authentication
+
+- Uses **JWT-based authentication** with Salesforce.
+- Private key is **AES-encrypted** and stored securely.
+
+---
+
+## 📦 Dockerized Build Environment
+
+The pipeline uses a custom Docker image with:
+
+- **Salesforce CLI**
+- **Prettier + Apex Plugin**
+- **PMD (v6.55.0)**
+- **OpenJDK 11, Git, Curl, jq**
+
+This ensures **consistent builds** across all environments.
+
+---
+
+## 👨‍💻 How to Use This Repo
+
+1. **Fork/Clone** this repository.
+2. Set up **GitHub Secrets**:
+   - `SLACK_WEBHOOK_URL`
+   - `AESKEY`, `IVKEY`, `DOCKER_HUB_USERNAME`, etc.
+3. Configure your **Salesforce Connected Apps** for JWT.
+4. Push a branch and open a PR to see automated checks in action!
+
+---
+
+## 🌟 Why This Repo?
+
+This project is designed to:
+- Showcase best practices in **Salesforce DevOps**.
+- Provide a clean, extensible template for Salesforce CI/CD.
+- Demonstrating real-world deployment automation, code quality enforcement, and multi-environment release strategies.
+
+---
+
+## 📬 Contact
+
+Feel free to reach out if you have questions or want to collaborate!
+
+---
+
+## 📅 Last Updated: 2025-04-12
