@@ -111,7 +111,7 @@ This ensures **consistent builds** across all environments.
 1. **Fork/Clone** this repository.
 2. Set up **GitHub Secrets**:
    - `SLACK_WEBHOOK_URL`
-   - `AESKEY`, `IVKEY`, `DOCKER_HUB_USERNAME`, etc.
+   - `AESKEY`, `IVKEY`, `DOCKER_HUB_USERNAME`, `DOCKER_HUB_PASSWORD`, `CONSUMER_KEY`, `SFDC_URL`, `SFDC_USER` and `SFDC_TEST_CLASSES`.
 3. Configure your **Salesforce Connected Apps** for JWT.
 4. Push a branch and open a PR to see automated checks in action!
 
