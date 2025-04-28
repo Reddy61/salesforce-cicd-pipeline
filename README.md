@@ -36,4 +36,11 @@ It demonstrates how to maintain high-quality Salesforce metadata deployments acr
 
 ---
 
+## 📄 Additional Documentation
+
+📚 **Setup Instructions**  
+→ [Follow the full Setup Guide here](./SETUP_GUIDE.md)
+
+---
+
 ## 📅 Last Updated: 2025-04-12
