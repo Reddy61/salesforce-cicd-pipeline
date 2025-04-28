@@ -8,8 +8,8 @@ This guide explains how to set up, configure, and run this Salesforce CI/CD pipe
 ## 📥 1. Clone or Fork the Repository
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo-name>.git
-cd <your-repo-name>
+git clone https://github.com/Reddy61/salesforce-cicd-pipeline.git
+cd salesforce-cicd-pipeline
 ```
 
 ---
