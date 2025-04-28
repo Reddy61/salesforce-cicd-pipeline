@@ -135,7 +135,3 @@ The pipeline will send deployment status alerts automatically.
 ## 📬 Need Help?
 
 Feel free to open an issue or reach out via LinkedIn!
-
----
-
-## 📅 Last Updated: 2025-04-12
