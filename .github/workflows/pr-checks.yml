@@ -34,11 +34,12 @@ jobs:
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
           CHANGED_CODE_FILES=$(echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' || true)
-          echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES" >> $GITHUB_ENV
+          CHANGED_CODE_FILES_CLEAN=$(echo "$CHANGED_CODE_FILES" | tr '\n' ',' | sed 's/,$//')
+          echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
 
           CHANGED_APEX_CLASSES=$(echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true)
-          SAFE_APEX_CLASSES=$(echo "$CHANGED_APEX_CLASSES" | paste -sd "," -)
-          echo "CHANGED_APEX_CLASSES=$SAFE_APEX_CLASSES" >> $GITHUB_ENV
+          CHANGED_APEX_CLASSES_CLEAN=$(echo "$CHANGED_APEX_CLASSES" | tr '\n' ',' | sed 's/,$//')
+          echo "CHANGED_APEX_CLASSES=$CHANGED_APEX_CLASSES_CLEAN" >> $GITHUB_ENV
 
       # Run Prettier on changed files
       - name: 🎨 Run Prettier Check on Changed Files
