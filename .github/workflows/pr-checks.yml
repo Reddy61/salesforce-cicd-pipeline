@@ -19,6 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # ✅ Configure Git Safe Directory
+      - name: ✅ Configure Git Safe Directory
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+
       # Fetch git diff changes
       - name: 🔍 Detect changed files
         id: changes
