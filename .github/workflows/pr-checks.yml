@@ -34,10 +34,10 @@ jobs:
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD || true)
 
           # Save Prettier-relevant files
-          echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' || true > changed_code_files.txt
+          echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' > changed_code_files.txt || true
 
           # Save Apex classes
-          echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true > changed_apex_classes.txt
+          echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' > changed_apex_classes.txt || true
 
           echo "=== DEBUGGING ==="
           echo "Changed Code Files:"
