@@ -19,19 +19,41 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Lint using Prettier
-      - name: 🔍 Run Prettier Lint
-        id: prettier
-        continue-on-error: true
+      # Fetch git diff changes
+      - name: 🔍 Detect changed files
+        id: changes
         run: |
-          prettier "force-app/**/*.{cls,html,js,json}" --plugin=prettier-plugin-apex --check
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD || true)
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
-      # Run static code analysis using Programming Mistake Detector
-      - name: 🧠 Run PMD Static Analysis
-        id: pmd
-        continue-on-error: true
+          CHANGED_CODE_FILES=$(echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' || true)
+          echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES" >> $GITHUB_ENV
+
+          CHANGED_APEX_CLASSES=$(echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true)
+          echo "CHANGED_APEX_CLASSES=$CHANGED_APEX_CLASSES" >> $GITHUB_ENV
+
+      # Run Prettier on changed files
+      - name: 🎨 Run Prettier Check on Changed Files
         run: |
-          pmd pmd -d force-app -R rulesets/apex/quickstart.xml -f text -cache .pmd/cache
+          if [ -z "$CHANGED_CODE_FILES" ]; then
+            echo "⚡ No relevant files for Prettier."
+            exit 0
+          fi
+          echo "🔍 Running Prettier on:"
+          echo "$CHANGED_CODE_FILES"
+          prettier --plugin=prettier-plugin-apex --check $CHANGED_CODE_FILES
+
+      # Run PMD on changed Apex classes
+      - name: 🧠 Run PMD Static Code Analysis on Changed Apex Classes
+        run: |
+          if [ -z "$CHANGED_APEX_CLASSES" ]; then
+            echo "⚡ No Apex classes changed. Skipping PMD."
+            exit 0
+          fi
+          echo "🔍 Running PMD on:"
+          echo "$CHANGED_APEX_CLASSES"
+          pmd pmd -d force-app/main/default/classes -R rulesets/apex/quickstart.xml -f text
 
       - name: ❌ Fail if Prettier or PMD failed
         run: |
