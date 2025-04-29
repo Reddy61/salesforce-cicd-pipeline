@@ -39,6 +39,17 @@ jobs:
           CHANGED_APEX_CLASSES=$(echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true)
           CHANGED_APEX_CLASSES_CLEAN=$(echo "$CHANGED_APEX_CLASSES" | tr '\n' ',' | sed 's/,$//')
 
+          echo "Changed Files Detected:"
+          echo "$CHANGED_FILES"
+          echo "Changed Code Files Detected:"
+          echo "$CHANGED_CODE_FILES"
+          echo "CHANGED_CODE_FILES_CLEAN:"
+          echo "$CHANGED_CODE_FILES_CLEAN"
+          echo "Changed Apex Classes Detected:"
+          echo "$CHANGED_APEX_CLASSES"
+          echo "CHANGED_APEX_CLASSES_CLEAN:"
+          echo "$CHANGED_APEX_CLASSES_CLEAN"
+
           echo "CHANGED_CODE_FILES<<EOF" >> $GITHUB_ENV
           echo "$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
