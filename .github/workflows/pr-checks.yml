@@ -37,7 +37,8 @@ jobs:
           echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES" >> $GITHUB_ENV
 
           CHANGED_APEX_CLASSES=$(echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true)
-          echo "CHANGED_APEX_CLASSES=$CHANGED_APEX_CLASSES" >> $GITHUB_ENV
+          SAFE_APEX_CLASSES=$(echo "$CHANGED_APEX_CLASSES" | paste -sd "," -)
+          echo "CHANGED_APEX_CLASSES=$SAFE_APEX_CLASSES" >> $GITHUB_ENV
 
       # Run Prettier on changed files
       - name: 🎨 Run Prettier Check on Changed Files
