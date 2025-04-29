@@ -51,11 +51,19 @@ jobs:
           echo "$CHANGED_APEX_CLASSES_CLEAN"
 
           if [ ! -z "$CHANGED_CODE_FILES_CLEAN" ]; then
-            echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
+            {
+              echo "CHANGED_CODE_FILES<<EOF"
+              echo "$CHANGED_CODE_FILES_CLEAN"
+              echo "EOF"
+            } >> $GITHUB_ENV
           fi
 
           if [ ! -z "$CHANGED_APEX_CLASSES_CLEAN" ]; then
-            echo "CHANGED_APEX_CLASSES=$CHANGED_APEX_CLASSES_CLEAN" >> $GITHUB_ENV
+            {
+              echo "CHANGED_APEX_CLASSES<<EOF"
+              echo "$CHANGED_APEX_CLASSES_CLEAN"
+              echo "EOF"
+            } >> $GITHUB_ENV
           fi
 
       # Run Prettier on changed files
