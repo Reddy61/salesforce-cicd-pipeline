@@ -30,41 +30,21 @@ jobs:
         id: changes
         run: |
           git fetch origin main
+
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD || true)
-          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
-          CHANGED_CODE_FILES=$(echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' || true)
-          CHANGED_CODE_FILES_CLEAN=$(echo "$CHANGED_CODE_FILES" | tr '\n' ',' | sed 's/,$//')
+          # Save Prettier-relevant files
+          echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' || true > changed_code_files.txt
 
-          CHANGED_APEX_CLASSES=$(echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true)
-          CHANGED_APEX_CLASSES_CLEAN=$(echo "$CHANGED_APEX_CLASSES" | tr '\n' ',' | sed 's/,$//')
+          # Save Apex classes
+          echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true > changed_apex_classes.txt
 
-          echo "Changed Files Detected:"
-          echo "$CHANGED_FILES"
-          echo "Changed Code Files Detected:"
-          echo "$CHANGED_CODE_FILES"
-          echo "CHANGED_CODE_FILES_CLEAN:"
-          echo "$CHANGED_CODE_FILES_CLEAN"
-          echo "Changed Apex Classes Detected:"
-          echo "$CHANGED_APEX_CLASSES"
-          echo "CHANGED_APEX_CLASSES_CLEAN:"
-          echo "$CHANGED_APEX_CLASSES_CLEAN"
-
-          if [ ! -z "$CHANGED_CODE_FILES_CLEAN" ]; then
-            {
-              echo "CHANGED_CODE_FILES<<EOF"
-              echo "$CHANGED_CODE_FILES_CLEAN"
-              echo "EOF"
-            } >> $GITHUB_ENV
-          fi
-
-          if [ ! -z "$CHANGED_APEX_CLASSES_CLEAN" ]; then
-            {
-              echo "CHANGED_APEX_CLASSES<<EOF"
-              echo "$CHANGED_APEX_CLASSES_CLEAN"
-              echo "EOF"
-            } >> $GITHUB_ENV
-          fi
+          echo "=== DEBUGGING ==="
+          echo "Changed Code Files:"
+          cat changed_code_files.txt || true
+          echo "Changed Apex Classes:"
+          cat changed_apex_classes.txt || true
+          echo "=== DEBUGGING END ==="
 
       # Run Prettier on changed files
       - name: 🎨 Run Prettier Check on Changed Files
