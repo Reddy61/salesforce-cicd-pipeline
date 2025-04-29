@@ -8,6 +8,7 @@ public with sharing class AccountHelper {
      * @param newIndustry The new Industry value to assign
      */
     public static void updateAccountIndustry(Id accountId, String newIndustry) {
+        /* Check if user has access to update the field*/
         if (!Schema.sObjectType.Account.fields.Industry.isUpdateable()) {
             throw new System.NoAccessException('No access to update Account.Industry');
         }
