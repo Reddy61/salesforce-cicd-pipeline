@@ -50,13 +50,13 @@ jobs:
           echo "CHANGED_APEX_CLASSES_CLEAN:"
           echo "$CHANGED_APEX_CLASSES_CLEAN"
 
-          echo "CHANGED_CODE_FILES<<EOF" >> $GITHUB_ENV
-          echo "$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          if [ ! -z "$CHANGED_CODE_FILES_CLEAN" ]; then
+            echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
+          fi
 
-          echo "CHANGED_APEX_CLASSES<<EOF" >> $GITHUB_ENV
-          echo "$CHANGED_APEX_CLASSES_CLEAN" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          if [ ! -z "$CHANGED_APEX_CLASSES_CLEAN" ]; then
+            echo "CHANGED_APEX_CLASSES=$CHANGED_APEX_CLASSES_CLEAN" >> $GITHUB_ENV
+          fi
 
       # Run Prettier on changed files
       - name: 🎨 Run Prettier Check on Changed Files
