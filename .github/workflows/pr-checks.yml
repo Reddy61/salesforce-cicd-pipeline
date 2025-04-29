@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ✅ Configure Git Safe Directory
+      # Configure Git Safe Directory
       - name: ✅ Configure Git Safe Directory
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
@@ -35,14 +35,22 @@ jobs:
 
           CHANGED_CODE_FILES=$(echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' || true)
           CHANGED_CODE_FILES_CLEAN=$(echo "$CHANGED_CODE_FILES" | tr '\n' ',' | sed 's/,$//')
-          echo "CHANGED_CODE_FILES=$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
 
           CHANGED_APEX_CLASSES=$(echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' || true)
           CHANGED_APEX_CLASSES_CLEAN=$(echo "$CHANGED_APEX_CLASSES" | tr '\n' ',' | sed 's/,$//')
-          echo "CHANGED_APEX_CLASSES=$CHANGED_APEX_CLASSES_CLEAN" >> $GITHUB_ENV
+
+          echo "CHANGED_CODE_FILES<<EOF" >> $GITHUB_ENV
+          echo "$CHANGED_CODE_FILES_CLEAN" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "CHANGED_APEX_CLASSES<<EOF" >> $GITHUB_ENV
+          echo "$CHANGED_APEX_CLASSES_CLEAN" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       # Run Prettier on changed files
       - name: 🎨 Run Prettier Check on Changed Files
+        id: prettier
+        continue-on-error: true
         run: |
           if [ -z "$CHANGED_CODE_FILES" ]; then
             echo "⚡ No relevant files for Prettier."
@@ -54,6 +62,8 @@ jobs:
 
       # Run PMD on changed Apex classes
       - name: 🧠 Run PMD Static Code Analysis on Changed Apex Classes
+        id: pmd
+        continue-on-error: true
         run: |
           if [ -z "$CHANGED_APEX_CLASSES" ]; then
             echo "⚡ No Apex classes changed. Skipping PMD."
