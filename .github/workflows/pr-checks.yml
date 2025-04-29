@@ -32,45 +32,41 @@ jobs:
           git fetch origin main
 
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD || true)
-
-          # Save Prettier-relevant files
           echo "$CHANGED_FILES" | grep -E '\.cls$|\.html$|\.js$|\.json$' > changed_code_files.txt || true
-
-          # Save Apex classes
           echo "$CHANGED_FILES" | grep 'force-app/main/default/classes/.*\.cls$' > changed_apex_classes.txt || true
 
-          echo "=== DEBUGGING ==="
           echo "Changed Code Files:"
           cat changed_code_files.txt || true
           echo "Changed Apex Classes:"
           cat changed_apex_classes.txt || true
-          echo "=== DEBUGGING END ==="
 
       # Run Prettier on changed files
       - name: 🎨 Run Prettier Check on Changed Files
         id: prettier
         continue-on-error: true
         run: |
-          if [ -z "$CHANGED_CODE_FILES" ]; then
-            echo "⚡ No relevant files for Prettier."
+          if [ ! -s changed_code_files.txt ]; then
+            echo "⚡ No files to lint."
             exit 0
           fi
           echo "🔍 Running Prettier on:"
-          echo "$CHANGED_CODE_FILES"
-          prettier --plugin=prettier-plugin-apex --check $CHANGED_CODE_FILES
+          cat changed_code_files.txt
+          prettier --plugin=prettier-plugin-apex --check $(cat changed_code_files.txt)
 
       # Run PMD on changed Apex classes
       - name: 🧠 Run PMD Static Code Analysis on Changed Apex Classes
         id: pmd
         continue-on-error: true
         run: |
-          if [ -z "$CHANGED_APEX_CLASSES" ]; then
+          if [ ! -s changed_apex_classes.txt ]; then
             echo "⚡ No Apex classes changed. Skipping PMD."
             exit 0
           fi
-          echo "🔍 Running PMD on:"
-          echo "$CHANGED_APEX_CLASSES"
-          pmd pmd -d force-app/main/default/classes -R rulesets/apex/quickstart.xml -f text
+          echo "🔍 Running PMD on Apex Classes:"
+          cat changed_apex_classes.txt
+          for file in $(cat changed_apex_classes.txt); do
+            pmd pmd -d $(dirname "$file") -R rulesets/apex/quickstart.xml -f text
+          done
 
       - name: ❌ Fail if Prettier or PMD failed
         run: |
